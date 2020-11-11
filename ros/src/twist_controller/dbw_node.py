@@ -51,7 +51,16 @@ class DBWNode(object):
         self.brake_pub = rospy.Publisher('/vehicle/brake_cmd', BrakeCmd, queue_size=1)            # this value unit is N*m
 
         # TODO: Create `Controller` object
-        #self.controller = Controller()
+        self.controller = Controller(vehicle_mass = vehicle_mass,
+                                     fuel_capacity = fuel_capacity,
+                                     brake_deadband = brake_deadband,
+                                     decel_limit = decel_limit,
+                                     accel_limit = accel_limit,
+                                     wheel_radius = wheel_radius,
+                                     wheel_base = wheel_base,
+                                     steer_ratio = steer_ratio,
+                                     max_lat_accel = max_lat_accel,
+                                     max_steer_angle = max_steer_angle)
 
         # TODO: Subscribe to all the topics you need to
         rospy.Subscriber('/vehicle/dbw_enable', Bool, self.dbw_enable_cb)
@@ -76,8 +85,10 @@ class DBWNode(object):
             # TODO: Get predicted throttle, brake, and steering using `twist_controller`
             # You should only publish the control commands if dbw is enabled
             if not None in (self.current_vel, self.linear_vel, self.angular_vel):
-                pass
-                #self.throttle, self.brake, self.steering = self.controller.control( self.current_vel, self.dbw_enable, self.linear_vel, self.angular_vel)
+                self.throttle, self.brake, self.steering = self.controller.control( self.current_vel,
+                                                                                    self.dbw_enable,
+                                                                                    self.linear_vel,
+                                                                                    self.angular_vel)
 
             if self.dbw_enable:
                 self.publish(self.throttle, self.brake, self.steering)
@@ -86,7 +97,7 @@ class DBWNode(object):
             rate.sleep()
     
     def dbw_enable_cb(self, msg):
-        sefl.dbw_enable = msg
+        self.dbw_enable = msg
 
     def twist_cb(self, msg):
         self.linear_vel = msg.twist.linear.x
