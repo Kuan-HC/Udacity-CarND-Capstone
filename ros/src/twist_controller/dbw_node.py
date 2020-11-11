@@ -63,7 +63,7 @@ class DBWNode(object):
         self.linear_vel = None
         self.angular_vel = None
         self.current_ang_vel = None
-        self.throttle = 0.2
+        self.throttle = 0
         self.steering = 0
         self.brake = 0
 
@@ -76,10 +76,12 @@ class DBWNode(object):
             # TODO: Get predicted throttle, brake, and steering using `twist_controller`
             # You should only publish the control commands if dbw is enabled
             if not None in (self.current_vel, self.linear_vel, self.angular_vel):
+                pass
                 #self.throttle, self.brake, self.steering = self.controller.control( self.current_vel, self.dbw_enable, self.linear_vel, self.angular_vel)
 
             if self.dbw_enable:
-                self.publish(self.throttle, self.brake, self.steer)
+                self.publish(self.throttle, self.brake, self.steering)
+            
 
             rate.sleep()
     
