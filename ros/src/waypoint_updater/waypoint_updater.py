@@ -5,6 +5,7 @@ from geometry_msgs.msg import PoseStamped
 from styx_msgs.msg import Lane, Waypoint
 from scipy.spatial import KDTree
 import numpy as np
+from std_msgs.msg import Int32
 
 import math
 
@@ -46,6 +47,9 @@ class WaypointUpdater(object):
 
         # below for pose_cb
         self.pose = None
+
+        # stop line index from tl_detector
+        self.stopline_wp_idx = -1
 
 
         self.loop()   # use loop function for controling the publishing frequency
@@ -124,7 +128,7 @@ class WaypointUpdater(object):
             if vel < 1.0:
                 vel = 0.0
             
-            p.twist.twist.linear.x = min(vel, wp.twist.twist.lenear.x)
+            p.twist.twist.linear.x = min(vel, wp.twist.twist.linear.x)
             temp.append(p)
 
         return temp
