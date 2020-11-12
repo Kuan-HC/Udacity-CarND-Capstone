@@ -63,11 +63,11 @@ class DBWNode(object):
                                      max_steer_angle = max_steer_angle)
 
         # TODO: Subscribe to all the topics you need to
-        rospy.Subscriber('/vehicle/dbw_enable', Bool, self.dbw_enable_cb)
+        rospy.Subscriber('/vehicle/dbw_enabled', Bool, self.dbw_enable_cb)
         rospy.Subscriber('/twist_cmd', TwistStamped, self.twist_cb)
         rospy.Subscriber('/current_velocity', TwistStamped, self.velocity_cb)
 
-        self.dbw_enable = None
+        self.dbw_enabled = None
         self.current_vel = None
         self.linear_vel = None
         self.angular_vel = None
@@ -86,18 +86,20 @@ class DBWNode(object):
             # You should only publish the control commands if dbw is enabled
             if not None in (self.current_vel, self.linear_vel, self.angular_vel):
                 self.throttle, self.brake, self.steering = self.controller.control( self.current_vel,
-                                                                                    self.dbw_enable,
+                                                                                    self.dbw_enabled,
                                                                                     self.linear_vel,
                                                                                     self.angular_vel)
 
-            if self.dbw_enable:
+            if self.dbw_enabled:
                 self.publish(self.throttle, self.brake, self.steering)
+            
             
 
             rate.sleep()
     
     def dbw_enable_cb(self, msg):
-        self.dbw_enable = msg
+        self.dbw_enabled = msg
+        
 
     def twist_cb(self, msg):
         self.linear_vel = msg.twist.linear.x
