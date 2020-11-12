@@ -63,6 +63,7 @@ class TLDetector(object):
         if not self.waypoints_2d:         # make sure self.waypoints_2d is initialized before the subscriber
             self.waypoints_2d = [[waypoint.pose.pose.position.x, waypoint.pose.pose.position.y] for waypoint in waypoints.waypoints]  # create 2D coordinates for easy waypoint
             self.waypoint_tree = KDTree(self.waypoints_2d)
+        
 
     def traffic_cb(self, msg):
         self.lights = msg.lights
@@ -156,7 +157,7 @@ class TLDetector(object):
         for i, light in enumerate(self.lights):
             # Get stop line waypoint index
             line = stop_line_positions[i]
-            temp_wp_idx = self.get_closet_waypoint(line[0], line[1])
+            temp_wp_idx = self.get_closest_waypoint(line[0], line[1])
             #find closest stop line waypoint index
             d = temp_wp_idx - car_wp_idx
             if d >= 0 and d < diff:
