@@ -8,13 +8,14 @@ from PIL import Image
 import matplotlib.pyplot as plt
 from PIL import ImageDraw
 from PIL import ImageColor
+import os
 
 class TLClassifier(object):
     def __init__(self):
-        #TODO load classifier
-        SSD_GRAPH_FILE = 'frozen_inference_graph.pb'        
+        #TODO load classifier   
+        SSD_GRAPH_FILE = "light_classification/model/frozen_inference_graph.pb"     
         #self.session = None
-        self.detection_graph = self.load_graph(SSD_GRAPH_FILE)
+        self.detection_graph = self.load_graph(os.path.abspath(SSD_GRAPH_FILE))
         
         # visualization
         cmap = ImageColor.colormap        
@@ -81,7 +82,7 @@ class TLClassifier(object):
             '''
             Visualization for debugging
             '''                                   
-            rospy.loginfo("tl_classifier detect object class: %d" %classes)
+            rospy.loginfo("tl_classifier detect object class: %d" %classes[0])
 
             '''
             width, height = image.size
