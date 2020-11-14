@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 from PIL import Image
 # for visualization
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from PIL import ImageDraw
 from PIL import ImageColor
 import os
@@ -73,7 +73,7 @@ class TLClassifier(object):
             scores = np.squeeze(scores)
             classes = np.squeeze(classes)            
             
-            confidence_cutoff = 0.7    # was 0.8
+            confidence_cutoff = 0.6    # was 0.8
             # Filter boxes with a confidence score less than `confidence_cutoff`
             boxes, scores, classes = self.filter_boxes(confidence_cutoff, boxes, scores, classes)
             
@@ -81,8 +81,9 @@ class TLClassifier(object):
             # This converts the coordinates actual location on the image.
             '''
             Visualization for debugging
-            '''                                   
-            rospy.loginfo("tl_classifier detect object class: %d" %classes[0])
+            '''  
+            if(len(classes)>=1):                                 
+                rospy.loginfo("tl_classifier detect object class: %d" %classes[0])
 
             '''
             width, height = image.size
