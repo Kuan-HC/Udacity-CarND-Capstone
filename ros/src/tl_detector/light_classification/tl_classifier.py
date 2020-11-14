@@ -21,6 +21,9 @@ class TLClassifier(object):
         cmap = ImageColor.colormap        
         self.COLOR_LIST = sorted([c for c in cmap.keys()])
 
+        # for debug
+        self.index = 0
+
     def load_graph(self, graph_file):
         """Loads a frozen inference graph"""
         graph = tf.Graph()
@@ -82,8 +85,12 @@ class TLClassifier(object):
             '''
             Visualization for debugging
             '''  
-            if(len(classes)>=1):                                 
-                rospy.loginfo("tl_classifier detect object class: %d" %classes[0])
+            if len(classes)>0:
+                for i in range(len(classes)):
+                    if (classes[i]==10):
+                        self.index += 1
+                        file = 'traffic_light_'+str(self.index)+'.jpg'
+                        cv2.imwrite(file, img)
 
             '''
             width, height = image.size
