@@ -79,6 +79,7 @@ class TLClassifier(object):
             confidence_cutoff = 0.7    # was 0.8
             # Filter boxes with a confidence score less than `confidence_cutoff`
             boxes, scores, classes = self.__filter_boxes(confidence_cutoff, boxes, scores, classes)
+            rospy.loginfo("Object Detector output")
             
             # The current box coordinates are normalized to a range between 0 and 1.
             # This converts the coordinates actual location on the image.
@@ -103,7 +104,7 @@ class TLClassifier(object):
             light_state = TrafficLight.UNKNOWN
             if len(classes)>0:
                 light_state = self.__classifier(cv2_img, box_coords, classes)
-                rospy.loginfo("Prediction from classifier: %d" %light_state)
+                rospy.loginfo("Traffic light from Detector: %d" %light_state)
         '''
         UNKNOWN=4
         GREEN=2
@@ -163,10 +164,13 @@ class TLClassifier(object):
                 '''
                 Traffic Light classifier - project from intro to self driving cars
                 '''  
-                predict_sum += self.__estimate_label(crop_image)                
-        
-        avg = predict_sum/traffic_counter
-        rospy.loginfo("This groupb brightness value: %d" %avg)
+                predict_sum += self.__estimate_label(crop_image)    
+        # traffic_counter ==0 means there is no object detect as traffic            
+        if (traffic_counter !=0):
+            avg = predict_sum/traffic_counter
+            rospy.loginfo("This groupb brightness value: %d" %avg)
+        else:
+            avg = 0        
 
         '''
         Traffic light definition in UNKNOWN=4

@@ -44,13 +44,17 @@ class TLDetector(object):
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size = 1)
 
         self.bridge = CvBridge()
-        self.light_classifier = TLClassifier()
         self.listener = tf.TransformListener()
 
         self.state = TrafficLight.UNKNOWN
         self.last_state = TrafficLight.UNKNOWN
         self.last_wp = -1
         self.state_count = 0
+
+        self.is_site = self.config['is_site']
+        if self.is_site:
+            rospy.loginfo("Simulation mode, not object detect model")
+            self.light_classifier = TLClassifier()
 
         rospy.spin()
 
@@ -129,11 +133,14 @@ class TLDetector(object):
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
 
         # Get classification
-        model_predict = self.light_classifier.get_classification(cv_image)
-        rospy.loginfo("TL state simulator: %d, Model Predict: %d" %(light.state, model_predict))
+        if self.is_site:
+            model_predict = self.light_classifier.get_classification(cv_image)
+            rospy.loginfo("TL state simulator: %d, Model Predict: %d" %(light.state, model_predict))
 
-        # For simulation test, just return the simulator light state
-        return light.state
+            return model_predict
+        else:
+            # For simulation test, just return the simulator light state
+            return light.state
 
     def process_traffic_lights(self):
         """Finds closest visible traffic light, if one exists, and determines its
