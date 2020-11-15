@@ -21,9 +21,6 @@ class TLClassifier(object):
         cmap = ImageColor.colormap        
         self.COLOR_LIST = sorted([c for c in cmap.keys()])
 
-        # for debug
-        self.index = 0
-
     def __load_graph(self, graph_file):
         """Loads a frozen inference graph"""
         graph = tf.Graph()
@@ -81,36 +78,17 @@ class TLClassifier(object):
             boxes, scores, classes = self.__filter_boxes(confidence_cutoff, boxes, scores, classes)
             rospy.loginfo("Object Detector output")
             
-            # The current box coordinates are normalized to a range between 0 and 1.
+             # The current box coordinates are normalized to a range between 0 and 1.
             # This converts the coordinates actual location on the image.
-            '''
-            Save images for debugging
-             
-            if len(classes)>0:
-                for i in range(len(classes)):
-                    if (classes[i]==10):
-                        self.index += 1
-                        file = 'traffic_light_'+str(self.index)+'.jpg'
-                        cv2.imwrite(file, img)
-            '''
             
             width, height = image.size
             box_coords = self.__to_image_coords(boxes, height, width)            
-
-            # Each class with be represented by a differently colored box
-            # Draw Box for Tuning            
-            # self.__draw_boxes(image, box_coords, classes)           
             
             light_state = TrafficLight.UNKNOWN
             if len(classes)>0:
                 light_state = self.__classifier(cv2_img, box_coords, classes)
                 rospy.loginfo("Traffic light from Detector: %d" %light_state)
-        '''
-        UNKNOWN=4
-        GREEN=2
-        YELLOW=1
-        RED=0
-        '''
+        
         
         return light_state
         
@@ -142,16 +120,6 @@ class TLClassifier(object):
         box_coords[:, 3] = boxes[:, 3] * width
     
         return box_coords
-
-    def __draw_boxes(self, image, boxes, classes, thickness=4):
-        """Draw bounding boxes on the image"""
-        draw = ImageDraw.Draw(image)
-        for i in range(len(boxes)):
-            bot, left, top, right = boxes[i, ...]
-            class_id = int(classes[i])
-            color = self.COLOR_LIST[class_id]
-            draw.line([(left, top), (left, bot), (right, bot), 
-                       (right, top), (left, top)], width=thickness, fill=color)
     
     def __classifier(self, image, boxes, classes):
         traffic_counter = 0

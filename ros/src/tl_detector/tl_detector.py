@@ -53,8 +53,11 @@ class TLDetector(object):
 
         self.is_site = self.config['is_site']
         if self.is_site:
-            rospy.loginfo("Simulation mode, not object detect model")
+            rospy.loginfo("Site mode,  Object detect model On")
             self.light_classifier = TLClassifier()
+        else:
+            rospy.loginfo("Simulation mode,  Object detect model Off")
+
 
         rospy.spin()
 
