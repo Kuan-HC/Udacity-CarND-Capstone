@@ -40,7 +40,7 @@ class TLClassifier(object):
         return graph
 
     
-    def get_classification(self, img):
+    def get_classification(self, cv2_img):
         """Determines the color of the traffic light in the image
 
         Args:
@@ -53,8 +53,8 @@ class TLClassifier(object):
         #TODO implement light color prediction
         
         #image = cv2.resize(image, (300, 300))
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        image = Image.fromarray(img)
+        cv2_img = cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB)
+        image = Image.fromarray(cv2_img)
         image_np = np.expand_dims(np.asarray(image, dtype=np.uint8), 0)
         
         with tf.Session(graph = self.detection_graph) as sess:   
@@ -102,7 +102,7 @@ class TLClassifier(object):
             
             light_state = TrafficLight.UNKNOWN
             if len(classes)>0:
-                light_state = self.__classifier(image, box_coords, classes)
+                light_state = self.__classifier(cv2_img, box_coords, classes)
                 rospy.loginfo("Prediction from classifier: %d" %light_state)
         '''
         UNKNOWN=4
@@ -157,17 +157,17 @@ class TLClassifier(object):
         for i in range(len(boxes)):
             if (classes[i]==10):
                 bot, left, top, right = boxes[i, ...]
-                crop_image = image.crop((left, bot, right, top))
+                crop_image = image[int(bot):int(top), int(left):int(right)]
                 '''
                 Traffic Light classifier - project from intro to self driving cars
                 '''                
                 predict_single_sign = self.__estimate_label(crop_image)
                 #print("single object predict: ",predict_single_sign)
                 predict_label = np.sum([predict_label, predict_single_sign],axis = 0)
-        #print("This groupb prediction: ",np.argmax(predict_label))
         
         # 0:R 1:Y 2:G
         predict = np.argmax(predict_label)
+        rospy.loginfo("This groupb prediction: %d" %predict)
 
         '''
         Traffic light definition in UNKNOWN=4
@@ -179,18 +179,12 @@ class TLClassifier(object):
         elif predict == 1:
             return TrafficLight.YELLOW
         elif predict == 2:
-            return TrafficLight.GREEN
-
-        
-       
-                    
-                
+            return TrafficLight.GREEN      
             
     '''
     Traffic Light classifier - reuse project from intro-to-self-driving-cars
     '''
-    def __estimate_label(self, pil_image):
-        rgb_image = np.array(pil_image)      
+    def __estimate_label(self, rgb_image):  
         rgb_image = cv2.resize(rgb_image,(32,32))
         test_image_hsv = cv2.cvtColor(np.array(rgb_image), cv2.COLOR_RGB2HSV)
         # Mask HSV channel
