@@ -83,29 +83,27 @@ class TLClassifier(object):
             # The current box coordinates are normalized to a range between 0 and 1.
             # This converts the coordinates actual location on the image.
             '''
-            Visualization for debugging
-            '''  
+            Save images for debugging
+             
             if len(classes)>0:
                 for i in range(len(classes)):
                     if (classes[i]==10):
                         self.index += 1
                         file = 'traffic_light_'+str(self.index)+'.jpg'
                         cv2.imwrite(file, img)
-
             '''
+            
             width, height = image.size
             box_coords = self.__to_image_coords(boxes, height, width)            
 
             # Each class with be represented by a differently colored box
-            # For Tuning            
-            self.__draw_boxes(image, box_coords, classes)            
+            # Draw Box for Tuning            
+            # self.__draw_boxes(image, box_coords, classes)           
             
-            plt.imshow(image)
-            print("switch to TrafficLight.UNKNOWN in ROS")
-            '''
-            light_state = 4
+            light_state = TrafficLight.UNKNOWN
             if len(classes)>0:
                 light_state = self.__classifier(image, box_coords, classes)
+                rospy.loginfo("Prediction from classifier: %d" %light_state)
         '''
         UNKNOWN=4
         GREEN=2
@@ -113,7 +111,6 @@ class TLClassifier(object):
         RED=0
         '''
         
-        return TrafficLight.UNKNOWN
         return light_state
         
 
@@ -165,11 +162,27 @@ class TLClassifier(object):
                 Traffic Light classifier - project from intro to self driving cars
                 '''                
                 predict_single_sign = self.__estimate_label(crop_image)
-                print("single object predict: ",predict_single_sign)
+                #print("single object predict: ",predict_single_sign)
                 predict_label = np.sum([predict_label, predict_single_sign],axis = 0)
+        #print("This groupb prediction: ",np.argmax(predict_label))
+        
         # 0:R 1:Y 2:G
-        print("This groupb prediction: ",np.argmax(predict_label))
-        return np.argmax(predict_label)
+        predict = np.argmax(predict_label)
+
+        '''
+        Traffic light definition in UNKNOWN=4
+        GREEN=2  YELLOW=1  RED=0
+        '''
+
+        if predict == 0:
+            return TrafficLight.RED
+        elif predict == 1:
+            return TrafficLight.YELLOW
+        elif predict == 2:
+            return TrafficLight.GREEN
+
+        
+       
                     
                 
             
@@ -192,10 +205,7 @@ class TLClassifier(object):
         AVG_Masked_R = self.__AVG_Brightness(Masked_R_V)
         AVG_Masked_Y = self.__AVG_Brightness(Masked_Y_V)
         AVG_Masked_G = self.__AVG_Brightness(Masked_G_V)
-        
-        # For Tuning
-        #self.__print_4_images(rgb_image, masked_red, masked_yellow, masked_green)
-        
+                
         return self.__predict_one_hot(AVG_Masked_R,AVG_Masked_Y,AVG_Masked_G)
             
     def __mask_red(self, HSV_image, rgb_image):    
@@ -236,13 +246,3 @@ class TLClassifier(object):
         predict_label[np.argmax(Brightness_input)] = 1
         return predict_label
     
-    def __print_4_images(self, image_1, image_2, image_3, image_4):
-        f, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, figsize=(15,10))
-        ax1.set_title('Original image')
-        ax1.imshow(image_1, cmap = 'gray')
-        ax2.set_title('Red')
-        ax2.imshow(image_2, cmap = 'gray')
-        ax3.set_title('Yellow')
-        ax3.imshow(image_3, cmap = 'gray')
-        ax4.set_title('Green')
-        ax4.imshow(image_4, cmap = 'gray')
