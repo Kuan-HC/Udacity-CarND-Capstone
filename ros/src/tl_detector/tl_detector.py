@@ -129,9 +129,8 @@ class TLDetector(object):
         cv_image = self.bridge.imgmsg_to_cv2(self.camera_image, "bgr8")
 
         # Get classification
-        #self.light_classifier.get_classification(cv_image)
         model_predict = self.light_classifier.get_classification(cv_image)
-        rospy.loginfo("TL state simulator: %d, Model: %d" %(light.state, model_predict))
+        rospy.loginfo("TL state simulator: %d, Model Predict: %d" %(light.state, model_predict))
 
         # For simulation test, just return the simulator light state
         return light.state
