@@ -21,8 +21,8 @@ class TLClassifier(object):
         cmap = ImageColor.colormap        
         self.COLOR_LIST = sorted([c for c in cmap.keys()])
         # Create Tensor Session
-        with tf.Session(graph = self.detection_graph) as sess:
-            self.sess = sess
+        self.sess = tf.Session(graph = self.detection_graph)
+            
 
     def __load_graph(self, graph_file):
         """Loads a frozen inference graph"""
@@ -139,7 +139,7 @@ class TLClassifier(object):
         # traffic_counter ==0 means there is no object detect as traffic            
         if (traffic_counter !=0):
             avg = predict_sum/traffic_counter
-            rospy.loginfo("This groupb brightness value: %d" %avg)
+            rospy.loginfo("This group brightness value: %f" %avg)
         else:
             avg = 0        
 
@@ -147,7 +147,7 @@ class TLClassifier(object):
         Traffic light definition in UNKNOWN=4
         GREEN=2  YELLOW=1  RED=0 
         '''
-        if (avg > 1.5):
+        if (avg > 1.0):
             return TrafficLight.RED
         else:
             return TrafficLight.UNKNOWN
