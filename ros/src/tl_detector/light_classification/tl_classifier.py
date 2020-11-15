@@ -20,6 +20,9 @@ class TLClassifier(object):
         # visualization
         cmap = ImageColor.colormap        
         self.COLOR_LIST = sorted([c for c in cmap.keys()])
+        # Create Tensor Session
+        with tf.Session(graph = self.detection_graph) as sess:
+            self.sess = sess
 
     def __load_graph(self, graph_file):
         """Loads a frozen inference graph"""
@@ -53,41 +56,41 @@ class TLClassifier(object):
         cv2_img = cv2.cvtColor(cv2_img, cv2.COLOR_BGR2RGB)
         image = Image.fromarray(cv2_img)
         image_np = np.expand_dims(np.asarray(image, dtype=np.uint8), 0)
-        
-        with tf.Session(graph = self.detection_graph) as sess:   
-            # The input placeholder for the image. Get_tensor_by_name` returns the Tensor with the associated name in the Graph.
-            image_tensor = self.detection_graph.get_tensor_by_name('image_tensor:0')
-            # Each box represents a part of the image where a particular object was detected.
-            detection_boxes = self.detection_graph.get_tensor_by_name('detection_boxes:0')
-            # Each score represent how level of confidence for each of the objects.
-            # Score is shown on the result image, together with the class label.
-            detection_scores = self.detection_graph.get_tensor_by_name('detection_scores:0')
-            # The classification of the object (integer id).
-            detection_classes = self.detection_graph.get_tensor_by_name('detection_classes:0')             
-            # Actual detection.
-            (boxes, scores, classes) = sess.run([detection_boxes, detection_scores, detection_classes], 
-                                        feed_dict={image_tensor: image_np})
 
-            # Remove unnecessary dimensions
-            boxes = np.squeeze(boxes)
-            scores = np.squeeze(scores)
-            classes = np.squeeze(classes)            
+        # The input placeholder for the image. Get_tensor_by_name` returns the Tensor with the associated name in the Graph.
+        image_tensor = self.detection_graph.get_tensor_by_name('image_tensor:0')
+        # Each box represents a part of the image where a particular object was detected.
+        detection_boxes = self.detection_graph.get_tensor_by_name('detection_boxes:0')
+        # Each score represent how level of confidence for each of the objects.
+        # Score is shown on the result image, together with the class label.
+        detection_scores = self.detection_graph.get_tensor_by_name('detection_scores:0')
+        # The classification of the object (integer id).
+        detection_classes = self.detection_graph.get_tensor_by_name('detection_classes:0')             
+        # Actual detection.
+        
+        (boxes, scores, classes) = self.sess.run([detection_boxes, detection_scores, detection_classes], 
+                                    feed_dict={image_tensor: image_np})
+
+        # Remove unnecessary dimensions
+        boxes = np.squeeze(boxes)
+        scores = np.squeeze(scores)
+        classes = np.squeeze(classes)            
             
-            confidence_cutoff = 0.7    # was 0.8
-            # Filter boxes with a confidence score less than `confidence_cutoff`
-            boxes, scores, classes = self.__filter_boxes(confidence_cutoff, boxes, scores, classes)
-            rospy.loginfo("Object Detector output")
+        confidence_cutoff = 0.55    # was 0.8
+        # Filter boxes with a confidence score less than `confidence_cutoff`
+        boxes, scores, classes = self.__filter_boxes(confidence_cutoff, boxes, scores, classes)
+        rospy.loginfo("Object Detector output")
             
-             # The current box coordinates are normalized to a range between 0 and 1.
-            # This converts the coordinates actual location on the image.
+        # The current box coordinates are normalized to a range between 0 and 1.
+        # This converts the coordinates actual location on the image.
             
-            width, height = image.size
-            box_coords = self.__to_image_coords(boxes, height, width)            
+        width, height = image.size
+        box_coords = self.__to_image_coords(boxes, height, width)            
             
-            light_state = TrafficLight.UNKNOWN
-            if len(classes)>0:
-                light_state = self.__classifier(cv2_img, box_coords, classes)
-                rospy.loginfo("Traffic light from Detector: %d" %light_state)
+        light_state = TrafficLight.UNKNOWN
+        if len(classes)>0:
+            light_state = self.__classifier(cv2_img, box_coords, classes)
+            rospy.loginfo("Traffic light from Detector: %d" %light_state)
         
         
         return light_state
@@ -144,7 +147,7 @@ class TLClassifier(object):
         Traffic light definition in UNKNOWN=4
         GREEN=2  YELLOW=1  RED=0 
         '''
-        if (avg > 3.0):
+        if (avg > 1.5):
             return TrafficLight.RED
         else:
             return TrafficLight.UNKNOWN
