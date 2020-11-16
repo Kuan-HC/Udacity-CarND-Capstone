@@ -1,8 +1,51 @@
-This is the project repo for the final project of the Udacity Self-Driving Car Nanodegree: Programming a Real Self-Driving Car. For more information about the project, see the project introduction [here](https://classroom.udacity.com/nanodegrees/nd013/parts/6047fe34-d93c-4f50-8336-b70ef10cb4b2/modules/e1a23b06-329a-4684-a717-ad476f0d8dff/lessons/462c933d-9f24-42d3-8bdc-a08a5fc866e4/concepts/5ab4b122-83e6-436d-850f-9f4d26627fd9).
+# Udacity-CarND-Capstone
+<img src="img/cover.gif" width = "500"/>
 
-Please use **one** of the two installation options, either native **or** docker installation.
+This is the project repo for the final project of the Udacity Self-Driving Car Nanodegree: Programming a Real Self-Driving Car. 
+The goal of the project is  to implement core functionality of the autonomous vehicle system, including traffic light detection,  
+control, and waypoint following
 
-### Native Installation
+# Individual Submission
+
+Name 				     | Udacity Account Email
+---------------- | ---------------------
+Kuan-Hsun Chen   | blackshield33@gmail.com
+
+## Running the Code
+
+1. Clone this repo
+
+2. Install python dependencies
+```bash
+cd CarND-Capstone
+pip install -r requirements.txt
+```
+3. Make and run styx
+```bash
+cd ros
+catkin_make
+source devel/setup.sh
+roslaunch launch/styx.launch
+```
+4. Run the [simulator](https://github.com/udacity/CarND-Capstone/releases)
+
+## Artchitecture 
+<img src="img/final-project-ros-graph-v2.png" width = "600"/>
+
+## Waypoint Updater
+The  purpose of this node is to publish a fixed number of waypoints ahead of the vehicle with the correct target velocities, depending on traffic lights and obstacles.
+
+## Drive By Wire / Twist Controller
+Once waypoint updater publishes messages to /final_waypoints, the vehicle's waypoint follower will publish twist commands to the /twist_cmd topic. The goal for this  part of the project is to implement the drive-by-wire node (dbw_node.py) which will subscribe to /twist_cmd and use various controllers to provide appropriate throttle, brake, and steering commands. 
+
+## Traffic Light Detector
+Once the vehicle is able to process waypoints, generate steering and throttle commands, and traverse the course, it will also need stop for obstacles. Traffic lights  are the first obstacle that we'll focus on.
+
+Traffic light classifier(tl_classifier.py) takes in images from on board camera, images are process by a pretrained MobileNet SSD model for object detect.
+Objects classified as traffic light (class==10) will go through an simple HSV filter for red light detecction. 
+<img src="img/detector.gif" width = "500"/>
+
+## Dependencies
 
 * Be sure that your workstation is running Ubuntu 16.04 Xenial Xerus or Ubuntu 14.04 Trusty Tahir. [Ubuntu downloads can be found here](https://www.ubuntu.com/download/desktop).
 * If using a Virtual Machine to install Ubuntu, use the following configuration as minimum:
@@ -54,35 +97,4 @@ roslaunch launch/styx.launch
 ```
 4. Run the simulator
 
-### Real world testing
-1. Download [training bag](https://s3-us-west-1.amazonaws.com/udacity-selfdrivingcar/traffic_light_bag_file.zip) that was recorded on the Udacity self-driving car.
-2. Unzip the file
-```bash
-unzip traffic_light_bag_file.zip
-```
-3. Play the bag file
-```bash
-rosbag play -l traffic_light_bag_file/traffic_light_training.bag
-```
-4. Launch your project in site mode
-```bash
-cd CarND-Capstone/ros
-roslaunch launch/site.launch
-```
-5. Confirm that traffic light detection works on real life images
 
-### Other library/driver information
-Outside of `requirements.txt`, here is information on other driver/library versions used in the simulator and Carla:
-
-Specific to these libraries, the simulator grader and Carla use the following:
-
-|        | Simulator | Carla  |
-| :-----------: |:-------------:| :-----:|
-| Nvidia driver | 384.130 | 384.130 |
-| CUDA | 8.0.61 | 8.0.61 |
-| cuDNN | 6.0.21 | 6.0.21 |
-| TensorRT | N/A | N/A |
-| OpenCV | 3.2.0-dev | 2.4.8 |
-| OpenMP | N/A | N/A |
-
-We are working on a fix to line up the OpenCV versions between the two.
