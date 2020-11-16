@@ -1,5 +1,5 @@
 # Udacity-CarND-Capstone
-<img src="img/cover.gif" width = "500"/>
+<img src="img/cover.gif" width = "600"/>
 
 This is the project repo for the final project of the Udacity Self-Driving Car Nanodegree: Programming a Real Self-Driving Car. 
 The goal of the project is  to implement core functionality of the autonomous vehicle system, including traffic light detection,  
@@ -30,7 +30,7 @@ roslaunch launch/styx.launch
 4. Run the [simulator](https://github.com/udacity/CarND-Capstone/releases)
 
 ## Artchitecture 
-<img src="img/final-project-ros-graph-v2.png" width = "600"/>
+<img src="img/final-project-ros-graph-v2.png" width = "700"/>
 
 ## Waypoint Updater
 The  purpose of this node is to publish a fixed number of waypoints ahead of the vehicle with the correct target velocities, depending on traffic lights and obstacles.
@@ -42,7 +42,8 @@ Once waypoint updater publishes messages to /final_waypoints, the vehicle's wayp
 Once the vehicle is able to process waypoints, generate steering and throttle commands, and traverse the course, it will also need stop for obstacles. Traffic lights  are the first obstacle that we'll focus on.
 
 Traffic light classifier(tl_classifier.py) takes in images from on board camera, images are process by a pretrained MobileNet SSD model for object detect.
-Objects classified as traffic light (class==10) will go through an simple HSV filter for red light detecction. 
+Objects classified as traffic light (class==10) will go through an simple HSV filter for red light detecction.  
+
 <img src="img/detector.gif" width = "500"/>
 
 ## Dependencies
